@@ -1,4 +1,3 @@
-import CalibrationScreen from '../CalibrationScreen';
 import MainMenu from '../MainMenu';
 import PauseMenu from '../PauseMenu';
 import SensorInfoMenu from '../SensorInfoMenu';
@@ -8,7 +7,6 @@ import WelcomeScreen from '../WelcomeScreen';
 import BreathingGuideBar from './BreathingGuideBar';
 import ExplorationIntro from './ExplorationIntro';
 import ExplorationModeBadge from './ExplorationModeBadge';
-import ExplorationPrepBanner from './ExplorationPrepBanner';
 import ExplorationWinOverlay from './ExplorationWinOverlay';
 import GameCanvas from './gameCanvas';
 import GameOver from './GameOver';
@@ -22,7 +20,6 @@ import { useBluetooth } from '../../hooks/useBluetooth';
 import { useGameEngine } from '../../hooks/useGameEngine';
 import { useOrientation } from '../../hooks/useOrientation';
 import { useVFC } from '../../hooks/useVFC';
-import { parsePortalHostCommand } from '../../services/portalBridge';
 import { setVFCMetricsPausedForSensorNoSignal } from '../../services/vfc';
 import type { SensorHudConnection } from '../../types';
 import { isRecentRrReceived } from '../../utils/sensorSignal';
@@ -71,14 +68,12 @@ function GameInner() {
   const { sessionError } = useSession();
   const {
     state,
-    goToCalibration,
     pauseGame,
     resumeGame,
     getCyclesPerMinute,
-    getSessionDifficulty,
-    getSessionLimit
+    getSessionDifficulty
   } = useGameEngine();
-  const { heartRate, isConnected, lastRRReceivedAt, sensorContactStatus } = useBluetooth();
+  const { isConnected, lastRRReceivedAt } = useBluetooth();
   const [sensorMenuOpen, setSensorMenuOpen] = useState(false);
   const { rmssd, isBaselineReady, baseline } = useVFC();
   const { toggleMusic, toggleSFX, getMusicVolume, getSFXVolume, startMusic } = useAudio();
@@ -87,9 +82,6 @@ function GameInner() {
   const [nowMs, setNowMs] = useState(() => Date.now());
   const isPortrait = useOrientation();
   const hasRecentRR = isRecentRrReceived(lastRRReceivedAt, nowMs);
-  const calibrationSensorHasData =
-    isConnected && sensorContactStatus !== 'not-detected' && heartRate != null && heartRate > 0 && hasRecentRR;
-  const isCalibrationStalled = state.currentState === 'calibration' && isConnected && !isBaselineReady && !calibrationSensorHasData;
   const isSensorNoSignalRelevantPhase =
     state.currentState === 'playing' ||
     state.currentState === 'restarting' ||
@@ -121,7 +113,7 @@ function GameInner() {
     state.sessionWithSensor === true &&
     !state.sessionSignalLossPersistent &&
     (sessionDifficulty === 'easy' || sessionDifficulty === 'medium')
-      ? 'CALIBRAÇÃO'
+      ? 'REFERÊNCIA'
       : 'LIMIAR';
 
   const baselineStatus =
@@ -141,37 +133,10 @@ function GameInner() {
   }, []);
 
   useEffect(() => {
-    const handleHostMessage = (event: MessageEvent) => {
-      const command = parsePortalHostCommand(event.data);
-      if (!command || command.action !== 'restart_calibration') {
-        return;
-      }
-
-      if (!state.sessionWithSensor) {
-        return;
-      }
-
-      if (
-        state.currentState === 'welcome' ||
-        state.currentState === 'mainMenu' ||
-        state.currentState === 'calibration'
-      ) {
-        return;
-      }
-
-      setSensorMenuOpen(false);
-      goToCalibration();
-    };
-
-    window.addEventListener('message', handleHostMessage);
-    return () => window.removeEventListener('message', handleHostMessage);
-  }, [goToCalibration, state.currentState, state.sessionWithSensor]);
-
-  useEffect(() => {
-    const freezeMetrics = isSensorNoSignal || state.sessionSignalLossPersistent === true || isCalibrationStalled;
+    const freezeMetrics = isSensorNoSignal || state.sessionSignalLossPersistent === true;
     setVFCMetricsPausedForSensorNoSignal(freezeMetrics);
     return () => setVFCMetricsPausedForSensorNoSignal(false);
-  }, [isSensorNoSignal, state.sessionSignalLossPersistent, isCalibrationStalled]);
+  }, [isSensorNoSignal, state.sessionSignalLossPersistent]);
 
   const musicOn = getMusicVolume() > 0;
   const sfxOn = getSFXVolume() > 0;
@@ -212,8 +177,6 @@ function GameInner() {
 
       {!sessionError && <WelcomeScreen />}
       <MainMenu />
-      <CalibrationScreen />
-
       <PauseMenu />
       <SensorInfoMenu isOpen={sensorMenuOpen} onClose={() => setSensorMenuOpen(false)} />
       <ExplorationWinOverlay />
@@ -249,14 +212,6 @@ function GameInner() {
             cyclesPerMinute={getCyclesPerMinute()}
             baselineStatus={baselineStatus}
             sensorHudConnection={sensorHudConnection}
-          />
-          <ExplorationPrepBanner
-            progress01={state.explorationUnlockProgress01}
-            gameplayMode={state.gameplayMode}
-            sessionStarted={state.sessionStarted}
-            sessionWithSensor={state.sessionWithSensor === true}
-            sessionSignalLossPersistent={state.sessionSignalLossPersistent === true}
-            staticDurationSeconds={getSessionLimit()}
           />
           <ExplorationModeBadge gameplayMode={state.gameplayMode} sessionStarted={state.sessionStarted} />
           <BreathingGuideBar gameplayMode={state.gameplayMode} sessionStarted={state.sessionStarted} />

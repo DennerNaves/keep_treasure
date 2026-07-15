@@ -1,7 +1,7 @@
 import type { MenuDifficultyId } from '../utils/constants';
 import type { RmssdTier } from './vfc';
 
-export type GameState = 'welcome' | 'mainMenu' | 'calibration' | 'playing' | 'paused' | 'gameOver' | 'restarting';
+export type GameState = 'welcome' | 'mainMenu' | 'playing' | 'paused' | 'gameOver' | 'restarting';
 
 export type GameplayMode = 'static' | 'exploration';
 
@@ -30,13 +30,11 @@ export interface GameEngineState {
 export interface GameEngineContextValue {
   state: GameEngineState;
   startGame: (isConnected?: boolean, difficulty?: MenuDifficultyId, keepPlaytestPending?: boolean) => void;
-  completeCalibration: () => void;
   pauseGame: () => void;
   resumeGame: () => void;
   quitSession: () => void;
   restartGame: () => void;
   goToMainMenu: () => void;
-  goToCalibration: () => void;
   goToWelcome: () => void;
   addScore: (points: number) => void;
   updateTimer: (deltaTime: number) => void;
@@ -270,13 +268,11 @@ export interface UseParticlesResult {
 export interface GameEngineInstance {
   getState: () => GameEngineState;
   startGame: (isConnected?: boolean, difficulty?: MenuDifficultyId, keepPlaytestPending?: boolean) => void;
-  completeCalibration: () => void;
   pauseGame: () => void;
   resumeGame: () => void;
   quitSession: () => void;
   restartGame: (isConnected?: boolean) => void;
   goToMainMenu: () => void;
-  goToCalibration: () => void;
   goToWelcome: () => void;
   addScore: (points: number) => void;
   updateTimer: (deltaTime: number) => void;

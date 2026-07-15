@@ -81,46 +81,6 @@ export const MENU_BRAND_CONFIG = {
 /** Chave no sessionStorage para o contexto da sessão (token, paciente, etc.). */
 export const SESSION_STORAGE_KEY = `${STORAGE_KEY_PREFIX}:session-context`;
 
-/** Minutos de folga exigidos antes da expiração do token para iniciar a partida (tempo para enviar dados ao backend). */
-export const SESSION_TOKEN_BUFFER_MINUTES = 5;
-
-/** Path do endpoint POST para enviar dados da sessão (varia por jogo). Ex.: keep_ocean_desktop → /jogos_web/keep_ocean_desktop/ */
-export const API_SESSION_SUBMIT_PATH = 'keep_ocean_desktop';
-
-/** URL para botão "Voltar ao portal" (comum a todos os jogos). Via env ou fallback. */
-export const PORTAL_RETURN_URL =
-  (typeof import.meta.env.VITE_PORTAL_RETURN_URL === 'string' ? import.meta.env.VITE_PORTAL_RETURN_URL.trim() : '') ||
-  'https://keepweb.selfsolutions.com.br/user-selection';
-
-/** Origem do portal que embute o jogo (validação do iframe). Derivada de PORTAL_RETURN_URL. */
-export const PORTAL_ORIGIN = (() => {
-  try {
-    return new URL(PORTAL_RETURN_URL).origin;
-  } catch {
-    return 'https://keepweb.selfsolutions.com.br';
-  }
-})();
-
-/**
- * URL pública base do jogo em produção (ex.: domínio Amplify).
- * Personalize ao criar um novo jogo a partir do template. Em build/CI, pode ser sobrescrita por `VITE_GAME_PUBLIC_URL`.
- */
-export const GAME_PUBLIC_URL_DEFAULT = 'https://keep-ocean.selfsolutions.com.br/' as const;
-
-/**
- * Origem em que o jogo é servido (derivada de {@link GAME_PUBLIC_URL_DEFAULT} ou de `VITE_GAME_PUBLIC_URL`).
- * Usada pelo guard de iframe: acesso top-level é permitido nesta origem, além de localhost e do portal.
- */
-export const GAME_DEPLOY_ORIGIN = (() => {
-  const fromEnv = typeof import.meta.env.VITE_GAME_PUBLIC_URL === 'string' ? import.meta.env.VITE_GAME_PUBLIC_URL.trim() : '';
-  const resolved = fromEnv || GAME_PUBLIC_URL_DEFAULT;
-  try {
-    return new URL(resolved).origin;
-  } catch {
-    return 'https://keep-ocean.selfsolutions.com.br';
-  }
-})();
-
 /**
  * Configuração geral do jogo (template): altura base, velocidade do fundo, CPM, limites de sessão e duração.
  */

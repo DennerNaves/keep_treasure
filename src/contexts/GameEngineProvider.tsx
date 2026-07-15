@@ -72,13 +72,6 @@ export function GameEngineProvider({ children }: { children: React.ReactNode }) 
     if (engineRef.current) engineRef.current.startGame(isConnected, difficulty);
   }, []);
 
-  const completeCalibration = useCallback(() => {
-    if (engineRef.current && loopRef.current) {
-      engineRef.current.completeCalibration();
-      loopRef.current.start();
-    }
-  }, []);
-
   const pauseGame = useCallback(() => {
     if (engineRef.current && loopRef.current) {
       engineRef.current.pauseGame();
@@ -145,13 +138,6 @@ export function GameEngineProvider({ children }: { children: React.ReactNode }) 
         sessionDifficulty: engine.getSessionDifficulty(),
         fullSensorExportEligible: snapshot.sessionWithSensor === true && snapshot.sessionSignalLossPersistent !== true
       });
-    }
-  }, []);
-
-  const goToCalibration = useCallback(() => {
-    if (engineRef.current && loopRef.current) {
-      engineRef.current.goToCalibration();
-      loopRef.current.stop();
     }
   }, []);
 
@@ -265,13 +251,11 @@ export function GameEngineProvider({ children }: { children: React.ReactNode }) 
   const value: GameEngineContextValue = {
     state,
     startGame,
-    completeCalibration,
     pauseGame,
     resumeGame,
     quitSession,
     restartGame,
     goToMainMenu,
-    goToCalibration,
     goToWelcome,
     addScore,
     updateTimer,

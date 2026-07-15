@@ -244,7 +244,7 @@ export default function GameCanvas() {
     const current = state?.currentState ?? null;
     const prev = previousStateRef.current;
     const fromMenuOrOverOrWelcome = prev === 'mainMenu' || prev === 'gameOver' || prev === 'welcome';
-    const isStartingNewGame = current === 'restarting' || ((current === 'calibration' || current === 'playing') && fromMenuOrOverOrWelcome);
+    const isStartingNewGame = current === 'restarting' || (current === 'playing' && fromMenuOrOverOrWelcome);
     if (isStartingNewGame) {
       resetSessionExportGate();
       resetPlayer();
@@ -467,7 +467,7 @@ export default function GameCanvas() {
         ctx.fillRect(0, 0, width, height);
       }
 
-      if (isWelcome || currentState.currentState === 'mainMenu' || currentState.currentState === 'calibration') {
+      if (isWelcome || currentState.currentState === 'mainMenu') {
         (deps.setInputEnabled as (enabled: boolean) => void)(false);
         return;
       }

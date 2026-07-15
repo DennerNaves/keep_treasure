@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { FaBluetoothB, FaGamepad, FaMusic, FaPause, FaPlay, FaUniversalAccess, FaVolumeMute, FaVolumeUp } from 'react-icons/fa';
 import { MdChair } from 'react-icons/md';
-import { useSession } from '../../contexts/sessionContext';
 import { useAudio } from '../../hooks/useAudio';
 import { useBluetooth } from '../../hooks/useBluetooth';
 import { useGameEngine } from '../../hooks/useGameEngine';
-import { getSessionApiBaseUrl, getSessionContextFromStorage, isDevSessionBypassEnabled, isSessionTokenValid } from '../../services/api';
 import type { BreathingPatternId } from '../../types';
 import type { MenuBreathingPatternId, MenuDifficultyId } from '../../utils/constants';
 import {
@@ -13,7 +11,6 @@ import {
   ALLOW_THEME_SWITCH,
   AUDIO_CONFIG,
   GAME_CONFIG,
-  GAME_THEME,
   MENU_BREATHING_PATTERN_BUTTON_LABEL,
   MENU_BREATHING_PATTERN_COPY,
   MENU_DIFFICULTY_COPY
@@ -84,7 +81,6 @@ import {
 
 export default function MainMenu() {
   const { state, goToWelcome, startGame, setSessionLimit, setCyclesPerMinute, setBreathingPattern } = useGameEngine();
-  const { setSessionInvalid } = useSession();
   const { connect, disconnect, isConnected, isLoading, error, batteryLevel, deviceName, lastRRReceivedAt } = useBluetooth();
   const {
     initAudio,
@@ -288,27 +284,6 @@ export default function MainMenu() {
   };
 
   const ensureSessionForMenu = (): boolean => {
-    if (isDevSessionBypassEnabled()) {
-      return true;
-    }
-
-    const baseUrl = getSessionApiBaseUrl();
-    if (!baseUrl) {
-      setSessionInvalid('invalid');
-      return false;
-    }
-
-    const ctx = getSessionContextFromStorage();
-    if (!ctx) {
-      setSessionInvalid('invalid');
-      return false;
-    }
-
-    if (!isSessionTokenValid(ctx.expiresAt, sessionTime)) {
-      setSessionInvalid('expired');
-      return false;
-    }
-
     return true;
   };
 

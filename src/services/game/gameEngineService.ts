@@ -7,7 +7,7 @@ import {
   GAMEPLAY_TRANSITION_CONFIG,
   type MenuDifficultyId
 } from '../../utils/constants';
-import { markCalibrationComplete, markGameEnd, markGameRestart, markSessionPlayStart, resetVFCState, startVFCSession } from '../vfc';
+import { markGameEnd, markGameRestart, markSessionPlayStart, resetVFCState, startVFCSession } from '../vfc';
 import {
   advanceTierHoldAccumMs,
   evaluateExplorationTransition
@@ -25,7 +25,6 @@ export function createGameEngine(): GameEngineInstance {
 
   let internalElapsedTime = 0;
   let lastRenderedSecond = -1;
-  let staticPhaseElapsedMs = 0;
   let tierHoldAccumMs = 0;
   const defaultGameplayFields = (): Pick<
     GameEngineState,
@@ -38,7 +37,6 @@ export function createGameEngine(): GameEngineInstance {
   });
 
   const resetGameplayPhaseTracking = (): void => {
-    staticPhaseElapsedMs = 0;
     tierHoldAccumMs = 0;
   };
 
@@ -114,68 +112,24 @@ export function createGameEngine(): GameEngineInstance {
       startVFCSession();
     }
 
-    const initialTimeRemaining = sessionLimit >= 0 ? sessionLimit : 0;
-
-    if (isConnected) {
-      updateState({
-        currentState: 'calibration',
-        isPaused: false,
-        isGameOver: false,
-        elapsedTime: 0,
-        timeRemaining: initialTimeRemaining,
-        score: 0,
-        sessionCompleted: false,
-        playerHasLeftScreen: false,
-        sessionStarted: false,
-        sessionWithSensor: true,
-        sessionSignalLossPersistent: false,
-        companionHudPeakConcurrent: 0,
-        companionHudConcurrentActive: 0,
-        ...defaultGameplayFields()
-      });
-    } else {
-      updateState({
-        currentState: 'playing',
-        isPaused: false,
-        isGameOver: false,
-        elapsedTime: 0,
-        timeRemaining: initialTimeRemaining,
-        score: 0,
-        sessionCompleted: false,
-        playerHasLeftScreen: false,
-        sessionStarted: false,
-        sessionWithSensor: false,
-        sessionSignalLossPersistent: false,
-        companionHudPeakConcurrent: 0,
-        companionHudConcurrentActive: 0,
-        ...defaultGameplayFields()
-      });
-    }
-  };
-
-  const completeCalibration = (): void => {
-    markCalibrationComplete(sessionDifficulty);
-    companionScheduleElapsedMs = 0;
-    playerHasArrived = false;
-    internalElapsedTime = 0;
-    lastRenderedSecond = -1;
-    resetGameplayPhaseTracking();
-
-    const initialTimeRemaining = sessionLimit >= 0 ? sessionLimit : 0;
     updateState({
       currentState: 'playing',
       isPaused: false,
       isGameOver: false,
       elapsedTime: 0,
-      timeRemaining: initialTimeRemaining,
+      timeRemaining: 0,
       score: 0,
       sessionCompleted: false,
       playerHasLeftScreen: false,
       sessionStarted: false,
+      sessionWithSensor: isConnected,
       sessionSignalLossPersistent: false,
       companionHudPeakConcurrent: 0,
       companionHudConcurrentActive: 0,
-      ...defaultGameplayFields()
+      ...defaultGameplayFields(),
+      gameplayMode: 'exploration',
+      explorationUnlocked: true,
+      explorationUnlockProgress01: 1
     });
   };
 
@@ -261,22 +215,6 @@ export function createGameEngine(): GameEngineInstance {
     });
   };
 
-  const goToCalibration = (): void => {
-    resetVFCState();
-    startVFCSession();
-    resetGameplayPhaseTracking();
-    updateState({
-      currentState: 'calibration',
-      isPaused: false,
-      isGameOver: false,
-      playerHasLeftScreen: false,
-      sessionSignalLossPersistent: false,
-      companionHudPeakConcurrent: 0,
-      companionHudConcurrentActive: 0,
-      ...defaultGameplayFields()
-    });
-  };
-
   const goToWelcome = (): void => {
     sessionDifficulty = 'medium';
     companionScheduleElapsedMs = 0;
@@ -314,13 +252,12 @@ export function createGameEngine(): GameEngineInstance {
       resetVFCState();
     }
     companionEntryDelays = newSessionWithSensor ? COMPANIONS_CONFIG.map((c) => c.entryDelay) : getCompanionEntryDelaysForNoSensor();
-    const initialTimeRemaining = sessionLimit >= 0 ? sessionLimit : 0;
     updateState({
       currentState: 'restarting',
       isPaused: false,
       isGameOver: false,
       elapsedTime: 0,
-      timeRemaining: initialTimeRemaining,
+      timeRemaining: 0,
       score: 0,
       sessionCompleted: false,
       playerHasLeftScreen: false,
@@ -329,7 +266,10 @@ export function createGameEngine(): GameEngineInstance {
       sessionSignalLossPersistent: false,
       companionHudPeakConcurrent: 0,
       companionHudConcurrentActive: 0,
-      ...defaultGameplayFields()
+      ...defaultGameplayFields(),
+      gameplayMode: 'exploration',
+      explorationUnlocked: true,
+      explorationUnlockProgress01: 1
     });
     setTimeout(() => {
       if (newSessionWithSensor) {
@@ -511,13 +451,11 @@ export function createGameEngine(): GameEngineInstance {
   return {
     getState,
     startGame,
-    completeCalibration,
     pauseGame,
     resumeGame,
     quitSession,
     restartGame,
     goToMainMenu,
-    goToCalibration,
     goToWelcome,
     addScore,
     updateTimer,

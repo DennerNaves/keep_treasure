@@ -1,6 +1,5 @@
-import { FaCog, FaFlagCheckered, FaHome, FaPlay } from 'react-icons/fa';
+import { FaFlagCheckered, FaHome, FaPlay } from 'react-icons/fa';
 import { useGameEngine } from '../../hooks/useGameEngine';
-import { notifyGameOver } from '../../services/portalBridge';
 import type { GameOverProps } from '../../types';
 import {
   ActionBlock,
@@ -11,7 +10,6 @@ import {
   GameOverContent,
   MenuNavButton,
   PrimaryActionButton,
-  SecondaryButton,
   StatItem,
   StatLabel,
   Stats,
@@ -21,7 +19,7 @@ import {
 } from './GameOver.styles';
 
 export default function GameOver({ finalScore, sessionTime, sessionCompleted }: GameOverProps) {
-  const { state, restartGame, goToCalibration, goToWelcome } = useGameEngine();
+  const { state, restartGame, goToWelcome } = useGameEngine();
 
   if (state.currentState !== 'gameOver') return null;
 
@@ -30,7 +28,7 @@ export default function GameOver({ finalScore, sessionTime, sessionCompleted }: 
   const titleText = sessionCompleted ? 'PARABÉNS!' : 'ENCERRADO';
 
   const handleFinishSession = () => {
-    notifyGameOver(finalScore);
+    goToWelcome();
   };
 
   return (
@@ -56,10 +54,10 @@ export default function GameOver({ finalScore, sessionTime, sessionCompleted }: 
 
         <ButtonGroup>
           <ActionBlock>
-            <DangerButton onClick={handleFinishSession} title='Encerrar sessão e ver resultados no portal'>
+            <DangerButton onClick={handleFinishSession} title='Encerrar sessão e voltar ao menu'>
               <FaFlagCheckered /> Finalizar sessão
             </DangerButton>
-            <ButtonCaption>Ver resultados no portal</ButtonCaption>
+            <ButtonCaption>Voltar ao menu inicial</ButtonCaption>
           </ActionBlock>
           <ActionBlock>
             <PrimaryActionButton onClick={restartGame} title='Iniciar nova partida (mantém calibração e opções)'>
@@ -67,14 +65,6 @@ export default function GameOver({ finalScore, sessionTime, sessionCompleted }: 
             </PrimaryActionButton>
             <ButtonCaption>Usa as mesmas configurações e calibração</ButtonCaption>
           </ActionBlock>
-          {state.sessionWithSensor && (
-            <ActionBlock>
-              <SecondaryButton onClick={goToCalibration} title='Ir para a tela de calibração (mantém ciclo, conexão e áudio)'>
-                <FaCog /> Refazer calibração
-              </SecondaryButton>
-              <ButtonCaption>Mantém as configurações e faz uma nova calibração</ButtonCaption>
-            </ActionBlock>
-          )}
           <ActionBlock>
             <MenuNavButton onClick={goToWelcome} title='Voltar ao início e zerar tudo'>
               <FaHome /> Ir para o menu

@@ -22,33 +22,11 @@ declare global {
 }
 
 export function notifyGameOver(score?: number): void {
-  const payload: PortalGameOverPayload = {
-    type: 'KEEP_GAME_OVER',
-    ...(score != null ? { score } : {})
-  };
-
-  if (window.ReactNativeWebView?.postMessage) {
-    window.ReactNativeWebView.postMessage(JSON.stringify(payload));
-    return;
-  }
-
-  if (window.parent && window.parent !== window) {
-    window.parent.postMessage(payload, '*');
-  }
+  void score;
 }
 
 export function notifyBackToPortal(): void {
-  const payload: PortalBackPayload = {
-    type: 'KEEP_BACK_TO_PORTAL'
-  };
-
-  if (window.ReactNativeWebView?.postMessage) {
-    window.ReactNativeWebView.postMessage(JSON.stringify(payload));
-    return;
-  }
-  if (window.parent && window.parent !== window) {
-    window.parent.postMessage(payload, '*');
-  }
+  window.location.reload();
 }
 
 export function parsePortalHostCommand(rawData: unknown): PortalHostCommandPayload | null {
