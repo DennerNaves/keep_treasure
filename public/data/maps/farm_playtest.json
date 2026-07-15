@@ -1,0 +1,35 @@
+{
+  "id": "farm_playtest",
+  "tileSize": 320,
+  "spawn": { "col": 4, "row": 9 },
+  "chest_position": { "col": 5, "row": 1 },
+  "tiles": {
+    "Grama": {
+      "color": "#4a7c3f",
+      "image": "/assets/images/tiles/grass-tile.jpeg",
+      "blocksMovement": false
+    },
+    "Terra": {
+      "color": "#8b7355",
+      "image": "/assets/images/tiles/grass-tile.jpeg",
+      "blocksMovement": false
+    },
+    "Arvores": {
+      "color": "#2d5016",
+      "image": "/assets/images/tiles/tree-tile.jpeg",
+      "blocksMovement": true
+    }
+  },
+  "layout": [
+    ["Arvores", "Arvores", "Arvores", "Arvores", "Arvores", "Arvores", "Arvores", "Arvores", "Arvores", "Arvores"],
+    ["Arvores", "Grama", "Grama", "Terra", "Grama", "Grama", "Terra", "Grama", "Grama", "Arvores"],
+    ["Arvores", "Grama", "Terra", "Terra", "Grama", "Grama", "Terra", "Terra", "Grama", "Arvores"],
+    ["Arvores", "Terra", "Grama", "Grama", "Grama", "Grama", "Grama", "Grama", "Terra", "Arvores"],
+    ["Arvores", "Grama", "Grama", "Grama", "Grama", "Grama", "Grama", "Grama", "Grama", "Arvores"],
+    ["Arvores", "Grama", "Grama", "Grama", "Grama", "Grama", "Grama", "Grama", "Grama", "Arvores"],
+    ["Arvores", "Terra", "Grama", "Grama", "Terra", "Terra", "Grama", "Grama", "Terra", "Arvores"],
+    ["Arvores", "Grama", "Terra", "Grama", "Grama", "Grama", "Grama", "Terra", "Grama", "Arvores"],
+    ["Arvores", "Grama", "Grama", "Terra", "Grama", "Grama", "Terra", "Grama", "Grama", "Arvores"],
+    ["Arvores", "Arvores", "Arvores", "Arvores", "Arvores", "Arvores", "Arvores", "Arvores", "Arvores", "Arvores"]
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "mapId": "farm_playtest",
+  "color": "rgba(230, 230, 235, 0.88)",
+  "spawnRevealRadius": 1,
+  "chestRevealRadius": 0,
+  "walkRevealRadius": 1,
+  "initialFogged": true
+}
